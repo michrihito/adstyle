@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>エニアグラム 上司×部下 コミュニケーション診断</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue-dark: #0C447C;
+    --blue-mid: #185FA5;
+    --blue-light: #E6F1FB;
+    --blue-text: #378ADD;
+    --green-dark: #27500A;
+    --green-light: #EAF3DE;
+    --amber-dark: #633806;
+    --amber-light: #FAEEDA;
+    --red-dark: #791F1F;
+    --red-light: #FCEBEB;
+    --purple-dark: #3C3489;
+    --purple-light: #EEEDFE;
+    --gray-dark: #444441;
+    --gray-light: #F1EFE8;
+    --border: #e2e0d8;
+    --text: #1a1a18;
+    --text-sub: #5f5e5a;
+    --text-hint: #888780;
+    --bg: #f8f7f4;
+    --card-bg: #ffffff;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--blue-mid);
+    color: #fff;
+    padding: 0.6rem 2rem;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .topbar svg { opacity: 0.7; }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #0C447C 0%, #185FA5 60%, #378ADD 100%);
+    color: #fff;
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    opacity: 0.7;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  .hero p {
+    font-size: 14px;
+    opacity: 0.75;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ── MAIN ── */
+  .main { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+  /* ── SELECTOR CARD ── */
+  .selector-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .selector-card h2 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-hint);
+    margin-bottom: 1rem;
+  }
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .type-btn {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 8px;
+    background: #fff;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .type-btn:hover { border-color: var(--blue-mid); background: var(--blue-light); }
+  .type-btn .num {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-hint);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .type-btn .name {
+    font-size: 11px;
+    color: var(--text-sub);
+    line-height: 1.4;
+    display: block;
+  }
+  .type-btn.selected-boss { border-color: var(--blue-mid); background: var(--blue-light); }
+  .type-btn.selected-boss .num { color: var(--blue-mid); }
+  .type-btn.selected-boss .name { color: var(--blue-dark); }
+  .type-btn.selected-member { border-color: #3B6D11; background: var(--green-light); }
+  .type-btn.selected-member .num { color: #3B6D11; }
+  .type-btn.selected-member .name { color: var(--green-dark); }
+
+  /* selected indicator */
+  .selected-display {
+    margin-top: 1rem;
+    font-size: 13px;
+    color: var(--text-sub);
+    min-height: 20px;
+  }
+  .selected-display strong { color: var(--text); }
+
+  /* ── BUTTONS ── */
+  .btn-row { display: flex; gap: 10px; margin-top: 1rem; }
+  .btn-diagnose {
+    flex: 1;
+    background: var(--blue-mid);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.15s;
+  }
+  .btn-diagnose:hover { background: var(--blue-dark); }
+  .btn-diagnose:disabled { background: #b0b0a8; cursor: not-allowed; }
+  .btn-reset {
+    background: #fff;
+    color: var(--text-sub);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn-reset:hover { background: var(--bg); }
+
+  .err {
+    font-size: 13px;
+    color: #A32D2D;
+    margin-top: 8px;
+    display: none;
+  }
+
+  /* ── LOADING ── */
+  .ai-loading {
+    display: none;
+    text-align: center;
+    padding: 2.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-top: 1.5rem;
+  }
+  .ai-loading p { font-size: 13px; color: var(--text-sub); margin-top: 12px; }
+  .dots { display: flex; justify-content: center; gap: 6px; }
+  .dots span {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--blue-mid);
+    animation: bounce 1.2s infinite;
+  }
+  .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:scale(0.4);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+
+  /* ── RESULT ── */
+  #result { display: none; margin-top: 1.5rem; animation: fadeUp 0.45s ease; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  .result-hero {
+    background: linear-gradient(135deg, #0C447C, #185FA5);
+    border-radius: 16px;
+    padding: 1.75rem 1.75rem 1.5rem;
+    margin-bottom: 1rem;
+    color: #fff;
+  }
+  .result-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    opacity: 0.65;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .result-title {
+    font-size: clamp(16px, 3vw, 20px);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .result-summary {
+    font-size: 14px;
+    line-height: 1.8;
+    opacity: 0.85;
+  }
+
+  /* section cards */
+  .sec {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.875rem;
+  }
+  .sec-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .sec-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .sec-title { font-size: 14px; font-weight: 700; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.875rem; margin-bottom: 0.875rem; }
+
+  ul.pts { list-style: none; }
+  ul.pts li {
+    font-size: 13px;
+    color: var(--text-sub);
+    padding: 6px 0 6px 18px;
+    position: relative;
+    line-height: 1.65;
+    border-bottom: 1px solid #f0ede6;
+  }
+  ul.pts li:last-child { border-bottom: none; }
+  ul.pts li::before { content: "›"; position: absolute; left: 4px; color: var(--text-hint); font-weight: 700; }
+
+  /* dialogue */
+  .dialogue { border-radius: 10px; padding: 1rem; margin-bottom: 10px; }
+  .dialogue:last-child { margin-bottom: 0; }
+  .dialogue-bad { background: var(--red-light); }
+  .dialogue-good { background: var(--green-light); }
+  .dialogue-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .dialogue-bad .dialogue-label { color: var(--red-dark); }
+  .dialogue-good .dialogue-label { color: var(--green-dark); }
+  .bubble-wrap { margin-bottom: 6px; }
+  .bubble-role { font-size: 11px; color: var(--text-hint); margin-bottom: 3px; }
+  .bubble {
+    display: inline-block;
+    max-width: 90%;
+    padding: 7px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .bubble-boss { background: rgba(0,0,0,0.06); color: var(--text-sub); }
+  .bubble-member { background: rgba(255,255,255,0.8); border: 1px solid var(--border); color: var(--text); }
+
+  /* PDF button */
+  .pdf-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+  .btn-pdf {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-pdf:hover { background: var(--blue-light); border-color: var(--blue-mid); color: var(--blue-dark); }
+  .btn-pdf svg { flex-shrink: 0; }
+
+  /* ── PRINT / PDF STYLES ── */
+  @media print {
+    @page { size: A4; margin: 18mm 16mm; }
+    body { background: #fff; font-size: 12px; }
+    .topbar, .hero, .selector-card, .btn-row, .btn-pdf, .pdf-row, .err, .ai-loading { display: none !important; }
+    .main { max-width: 100%; padding: 0; }
+    #result { display: block !important; animation: none !important; }
+    .result-hero { background: #0C447C !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border-radius: 8px; padding: 1.2rem; }
+    .sec { border: 1px solid #ddd; border-radius: 8px; page-break-inside: avoid; margin-bottom: 0.6rem; padding: 1rem 1.2rem; }
+    .two-col { gap: 0.6rem; }
+    .dialogue { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .dialogue-bad { background: #FCEBEB !important; }
+    .dialogue-good { background: #EAF3DE !important; }
+    .sec-icon { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .result-hero * { color: #fff !important; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 520px) {
+    .type-grid { grid-template-columns: repeat(3, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .hero { padding: 2rem 1.25rem 2rem; }
+  }
+  @media (max-width: 380px) {
+    .type-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+  組織コミュニケーション改善ツール — Adstyle Corporation
+</div>
+
+<div class="hero">
+  <div class="hero-eyebrow">Enneagram Communication Diagnosis</div>
+  <h1>エニアグラム 上司×部下<br>コミュニケーション診断</h1>
+  <p>81通りの組み合わせから、起きやすいズレと円滑な関わり方を可視化します</p>
+</div>
+
+<div class="main">
+
+  <!-- BOSS SELECTOR -->
+  <div class="selector-card">
+    <h2>上司のタイプを選択</h2>
+    <div class="type-grid" id="boss-grid"></div>
+    <div class="selected-display" id="boss-display">未選択</div>
+  </div>
+
+  <!-- MEMBER SELECTOR -->
+  <div class="selector-card">
+    <h2>部下のタイプを選択</h2>
+    <div class="type-grid" id="member-grid"></div>
+    <div class="selected-display" id="member-display">未選択</div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-diagnose" onclick="diagnose()">診断する</button>
+    <button class="btn-reset" onclick="resetAll()">リセット</button>
+  </div>
+  <div class="err" id="err">上司タイプと部下タイプを両方選択してください。</div>
+
+  <div class="ai-loading" id="ai-loading">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <p>AIが組み合わせを分析しています…少々お待ちください</p>
+  </div>
+
+  <div id="result"></div>
+</div>
+
+<script>
+const TYPES = [
+  { num:1, name:"改革する人" },
+  { num:2, name:"助ける人" },
+  { num:3, name:"達成する人" },
+  { num:4, name:"個性を求める人" },
+  { num:5, name:"調べる人" },
+  { num:6, name:"忠実な人" },
+  { num:7, name:"楽しむ人" },
+  { num:8, name:"挑戦する人" },
+  { num:9, name:"平和を望む人" }
+];
+
+const PRESET = {
+"8-1": {
+  title:"上司タイプ8（挑戦する人）× 部下タイプ1（改革する人）",
+  summary:"結果志向の上司と、正解志向の部下。上司の問いかけが、部下には「正解を当てる試験」のように感じられやすい組み合わせ。強さと誠実さが同じ方向を向いたときに大きな力を発揮します。",
+  risks:["上司の問いかけが詰問に聞こえやすい","部下が顧客ではなく上司の正解を探し始める","評価基準が曖昧だと部下の不安が増える","上司の推進力が部下には圧力として伝わることがある"],
+  managerAdvice:["答えを引き出す前に、評価基準を明示する","問いかけだけで終わらず、最後に観点を整理する","良い点と改善点を明確に分けて伝える","フィードバックはプロセスではなく行動に絞る"],
+  memberAdvice:["上司の反応だけを正解基準にしない","顧客成果を基準にして自分の意見を持つ","分からない時は、答えではなく判断軸を確認する","改善提案は根拠とセットで伝えると受け入れられやすい"],
+  smoothCommunication:["商談前に目的・判断基準・成功条件を共有する","上司は問いかけの意図を説明する","部下は自分の仮説と根拠をセットで伝える","定期的に「何がうまくいっているか」を確認する時間を作る"],
+  badExample:{ manager:"できるの？それで？", member:"何が正解なんだろう…" },
+  goodExample:{ manager:"その進め方で良い。懸念は決裁者への確認が不足している点。そこを補って。", member:"判断基準が分かりました。決裁者確認を追加します。" },
+  organizationImpact:["部下が主体性を失う","上司攻略に意識が向く","本来の営業成果から焦点がずれる"]
+},
+"9-9": {
+  title:"上司タイプ9（平和を望む人）× 部下タイプ9（平和を望む人）",
+  summary:"和を重んじる上司と、調和を求める部下。お互いに波風を立てたくないという心理が重なり、問題の先送りや意思決定の停滞が起きやすい組み合わせ。信頼関係は築きやすいため、その強みを活かして丁寧に推進力を補うことが鍵です。",
+  risks:["課題が表面化しにくく問題が潜在化する","両者とも意見をはっきり言わないため方向性が曖昧になる","フィードバックが曖昧で改善につながらない","変化対応力が低下しやすい"],
+  managerAdvice:["具体的な期待値と期日を明示する","「どう思う？」だけでなく「何を決めるか」まで話を進める","心理的安全性を活かして小さな改善を積み上げる","問題提起を評価する文化をつくる"],
+  memberAdvice:["曖昧な指示は確認して言語化する習慣をつける","自分の意見を「提案」として話すと伝えやすい","行動の優先順位を自分で設定し上司に共有する","違和感を感じたら早めに小さく共有する"],
+  smoothCommunication:["週次で「今週の優先事項」を確認する短い場を設ける","意思決定を「正しいか」ではなく「何を優先するか」で進める","合意事項を文字に残す習慣をつくる","チームの目標を可視化して共有の判断軸にする"],
+  badExample:{ manager:"まあ…どうしようか。あなたはどう思う？", member:"そうですね…上司がよければ…" },
+  goodExample:{ manager:"今週の優先事項はAとBに絞ろう。金曜に進捗を共有してほしい。", member:"分かりました。Aを先に進め、木曜に中間共有します。" },
+  organizationImpact:["意思決定が遅くなる","変化への対応が後手に回る","チームの自主性が育ちにくい"]
+},
+"1-7": {
+  title:"上司タイプ1（改革する人）× 部下タイプ7（楽しむ人）",
+  summary:"原則・正確さを重視する上司と、可能性・楽しさを追求する部下。上司の几帳面さが部下には窮屈に映り、部下の柔軟さが上司には計画性のなさに見えやすい組み合わせ。お互いの強みを意識的に補い合えると、高い成果につながります。",
+  risks:["上司の細かい修正指示が部下のモチベーションを下げる","部下の発散思考が上司には計画性のなさに映る","プロセス重視の上司と結果重視の部下で価値観がぶつかる","締め切り・品質管理で摩擦が生じやすい"],
+  managerAdvice:["完璧を求める前に、まず部下のアイデアを受け取る","修正点は優先度をつけて伝える（全部一度に言わない）","部下の発散力を企画フェーズで積極的に活用する","「楽しく正確に進める方法」を一緒に考える"],
+  memberAdvice:["アイデアは「荒削りな案」として出すと受け入れられやすい","締め切りと品質基準を最初に確認してから動く","上司のフィードバックを「改善のヒント」として受け取る","報連相の頻度を上司の期待に合わせて調整する"],
+  smoothCommunication:["アイデア出しと実行計画を明確に分けて話す","上司は「なぜこの基準が大切か」を伝える","部下は「どこまで自由にやっていいか」を確認する","週次で進捗と気になる点を短く共有する場を設ける"],
+  badExample:{ manager:"またこんなに誤字が…ちゃんと確認しましたか？", member:"細かいことより大きな方向性が大事じゃないですか…" },
+  goodExample:{ manager:"アイデアは面白い。提出前にAとBの誤字だけ直してほしい。", member:"分かりました。提出前にAとBを必ず確認します。" },
+  organizationImpact:["部下の創造性が活かされず停滞感が生まれる","上司が細部に集中しすぎてチーム全体の視点が失われる","プロセスと柔軟性のバランスが崩れる"]
+}
+};
+
+let selectedBoss = null;
+let selectedMember = null;
+
+function buildGrid(containerId, role) {
+  const grid = document.getElementById(containerId);
+  TYPES.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'type-btn';
+    btn.dataset.num = t.num;
+    btn.innerHTML = `<span class="num">${t.num}</span><span class="name">${t.name}</span>`;
+    btn.onclick = () => selectType(t.num, role);
+    grid.appendChild(btn);
+  });
+}
+
+function selectType(num, role) {
+  if (role === 'boss') {
+    selectedBoss = num;
+    document.querySelectorAll('#boss-grid .type-btn').forEach(b => {
+      b.classList.remove('selected-boss');
+      if (parseInt(b.dataset.num) === num) b.classList.add('selected-boss');
+    });
+    document.getElementById('boss-display').innerHTML = `<strong>タイプ${num}：${TYPES[num-1].name}</strong> を選択中`;
+  } else {
+    selectedMember = num;
+    document.querySelectorAll('#member-grid .type-btn').forEach(b => {
+      b.classList.remove('selected-member');
+      if (parseInt(b.dataset.num) === num) b.classList.add('selected-member');
+    });
+    document.getElementById('member-display').innerHTML = `<strong>タイプ${num}：${TYPES[num-1].name}</strong> を選択中`;
+  }
+}
+
+function renderResult(d) {
+  const el = document.getElementById('result');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="pdf-row">
+      <button class="btn-pdf" onclick="downloadPDF()">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        PDFでダウンロード
+      </button>
+    </div>
+
+    <div class="result-hero">
+      <div class="result-eyebrow">診断結果</div>
+      <div class="result-title">${d.title}</div>
+      <div class="result-summary">${d.summary}</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-header">
+        <div class="sec-icon" style="background:#FAEEDA;color:#633806;">⚠</div>
+        <div class="sec-title">起きやすいコミュニケーションのズレ</div>
+      </div>
+      <ul class="pts">${d.risks.map(r=>`<li>${r}</li>`).join('')}</ul>
+    </div>
+
+    <div class="two-col">
+      <div class="sec">
+        <div class="sec-header">
+          <div class="sec-icon" style="background:#E6F1FB;color:#0C447C;">👔</div>
+          <div class="sec-title">上司側の注意点</div>
+        </div>
+        <ul class="pts">${d.managerAdvice.map(r=>`<li>${r}</li>`).join('')}</ul>
+      </div>
+      <div class="sec">
+        <div class="sec-header">
+          <div class="sec-icon" style="background:#EAF3DE;color:#27500A;">🙋</div>
+          <div class="sec-title">部下側の注意点</div>
+        </div>
+        <ul class="pts">${d.memberAdvice.map(r=>`<li>${r}</li>`).join('')}</ul>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-header">
+        <div class="sec-icon" style="background:#EEEDFE;color:#3C3489;">💬</div>
+        <div class="sec-title">円滑なコミュニケーション方法</div>
+      </div>
+      <ul class="pts">${d.smoothCommunication.map(r=>`<li>${r}</li>`).join('')}</ul>
+    </div>
+
+    <div class="sec">
+      <div class="sec-header">
+        <div class="sec-icon" style="background:#FAECE7;color:#712B13;">🗣</div>
+        <div class="sec-title">会話例</div>
+      </div>
+      <div class="dialogue dialogue-bad">
+        <div class="dialogue-label">✕ 注意が必要な会話パターン</div>
+        <div class="bubble-wrap"><div class="bubble-role">上司</div><span class="bubble bubble-boss">${d.badExample.manager}</span></div>
+        <div class="bubble-wrap"><div class="bubble-role">部下</div><span class="bubble bubble-member">${d.badExample.member}</span></div>
+      </div>
+      <div class="dialogue dialogue-good">
+        <div class="dialogue-label">✓ 円滑な会話パターン</div>
+        <div class="bubble-wrap"><div class="bubble-role">上司</div><span class="bubble bubble-boss">${d.goodExample.manager}</span></div>
+        <div class="bubble-wrap"><div class="bubble-role">部下</div><span class="bubble bubble-member">${d.goodExample.member}</span></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-header">
+        <div class="sec-icon" style="background:#F1EFE8;color:#444441;">🏢</div>
+        <div class="sec-title">放置した場合の組織への影響</div>
+      </div>
+      <ul class="pts">${d.organizationImpact.map(r=>`<li>${r}</li>`).join('')}</ul>
+    </div>
+  `;
+  el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+async function fetchAI(bossNum, memberNum) {
+  const bossName = `タイプ${bossNum}：${TYPES[bossNum-1].name}`;
+  const memberName = `タイプ${memberNum}：${TYPES[memberNum-1].name}`;
+  const prompt = `あなたはエニアグラムと組織コミュニケーションの専門家です。
+上司が「${bossName}」、部下が「${memberName}」の場合の職場コミュニケーション分析を、以下のJSON形式のみで返してください。
+占い的・決定論的な表現を避け「起きやすいズレ」「注意すべきポイント」「円滑な対話」の視点で記述してください。
+{
+  "title": "上司${bossName} × 部下${memberName}",
+  "summary": "関係性の要約（2〜3文、成長の可能性も含める）",
+  "risks": ["注意点1","注意点2","注意点3","注意点4"],
+  "managerAdvice": ["上司の注意点1","上司の注意点2","上司の注意点3","上司の注意点4"],
+  "memberAdvice": ["部下の注意点1","部下の注意点2","部下の注意点3","部下の注意点4"],
+  "smoothCommunication": ["方法1","方法2","方法3","方法4"],
+  "badExample": { "manager": "上司の発言（問題のある例）", "member": "部下の心理または発言（問題のある例）" },
+  "goodExample": { "manager": "上司の発言（改善例）", "member": "部下の発言（改善例）" },
+  "organizationImpact": ["組織への影響1","組織への影響2","組織への影響3"]
+}
+JSONのみ返してください。前後に説明文・コードブロックを入れないでください。`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1200,
+      messages:[{ role:'user', content:prompt }]
+    })
+  });
+  const data = await resp.json();
+  const text = data.content.map(i=>i.text||'').join('');
+  const clean = text.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+async function diagnose() {
+  const err = document.getElementById('err');
+  const result = document.getElementById('result');
+  const loading = document.getElementById('ai-loading');
+
+  if (!selectedBoss || !selectedMember) {
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+  result.style.display = 'none';
+
+  const key = `${selectedBoss}-${selectedMember}`;
+  if (PRESET[key]) {
+    renderResult(PRESET[key]);
+    return;
+  }
+
+  loading.style.display = 'block';
+  try {
+    const d = await fetchAI(selectedBoss, selectedMember);
+    loading.style.display = 'none';
+    renderResult(d);
+  } catch(e) {
+    loading.style.display = 'none';
+    result.style.display = 'block';
+    result.innerHTML = `<div class="sec"><p style="font-size:13px;color:#888">分析の生成中にエラーが発生しました。しばらくしてから再度お試しください。</p></div>`;
+  }
+}
+
+function downloadPDF() {
+  window.print();
+}
+
+function resetAll() {
+  selectedBoss = null;
+  selectedMember = null;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected-boss','selected-member'));
+  document.getElementById('boss-display').textContent = '未選択';
+  document.getElementById('member-display').textContent = '未選択';
+  document.getElementById('err').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('ai-loading').style.display = 'none';
+}
+
+buildGrid('boss-grid', 'boss');
+buildGrid('member-grid', 'member');
+</script>
+</body>
+</html>
